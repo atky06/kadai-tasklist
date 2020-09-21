@@ -1,4 +1,4 @@
-extends('layouts.app')
+@extends('layouts.app')
 
 @section('content')
 
@@ -6,7 +6,7 @@ extends('layouts.app')
 
     <div class="row">
         <div class="col-6">
-            {!! Form::model($task, ['route' => ['tasks.update', $message->id], 'method' => 'put']) !!}
+            {!! Form::model($task, ['route' => ['tasks.update', $task->id], 'method' => 'put']) !!}
 
                 <div class="form-group">
                     {!! Form::label('content', 'タスク:') !!}
