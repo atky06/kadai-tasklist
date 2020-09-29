@@ -6,6 +6,13 @@
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#nav-bar">
             <span class="navbar-toggler-icon"></span>
         </button>
+        
+        <ul class="nav navbar-nav navbar-right">
+                    {{-- ユーザ登録ページへのリンク --}}
+                    <li>{!! link_to_route('signup.get', 'Signup', [], ['class' => 'nav-link']) !!}</li>
+                    {{-- ログインページへのリンク --}}
+                    <li><a href="#">Login</a></li>
+        </ul>
 
         <div class="collapse navbar-collapse" id="nav-bar">
             <ul class="navbar-nav mr-auto"></ul>
