@@ -75,13 +75,15 @@ class TasksController extends Controller
      */
     public function show($id)
     {
-        // idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
-
-        // メッセージ詳細ビューでそれを表示
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
+        // idの値で投稿を検索して取得
+        $task = \App\Task::findOrFail($id);
+        
+        if (\Auth::id() === $task->user_id) {
+            // メッセージ詳細ビューでそれを表示
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
+        }
     }
 
     /**
@@ -92,13 +94,16 @@ class TasksController extends Controller
      */
     public function edit($id)
     {
-        // idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
+       // idの値で投稿を検索して取得
+        $task = \App\Task::findOrFail($id);
+        
+        if (\Auth::id() === $task->user_id) {
 
-        // メッセージ編集ビューでそれを表示
-        return view('tasks.edit', [
-            'task' => $task,
-        ]);
+            // メッセージ編集ビューでそれを表示
+            return view('tasks.edit', [
+                'task' => $task,
+            ]);
+        }
     }
 
     /**
@@ -108,22 +113,24 @@ class TasksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,$id)
     {
         $request->validate([
             'content' => 'required|max:255',
             'status' => 'required|max:10',
         ]);
         
-        // idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
-        // メッセージを更新
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
-
-        // トップページへリダイレクトさせる
-        return redirect('/');
+        // idの値で投稿を検索して取得
+        $task = \App\Task::findOrFail($id);
+        
+        if (\Auth::id() === $task->user_id) {
+            // メッセージを更新
+            $task->status = $request->status;
+            $task->content = $request->content;
+            $task->save();
+        }
+            // トップページへリダイレクトさせる
+            return redirect('/');
     }
 
     /**
@@ -134,8 +141,9 @@ class TasksController extends Controller
      */
     public function destroy($id)
     {
-        // idの値でメッセージを検索して取得
-        $task = Task::findOrFail($id);
+        // idの値で投稿を検索して取得
+        $task = \App\Task::findOrFail($id);
+
         if (\Auth::id() === $task->user_id) {
             $task->delete();
         }
