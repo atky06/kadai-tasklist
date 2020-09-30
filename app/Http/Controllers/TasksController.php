@@ -19,13 +19,18 @@ class TasksController extends Controller
         if (\Auth::check()) { // 認証済みの場合
             // 認証済みユーザを取得
             $user = \Auth::user();
-        
-        $tasks = Task::all();
+        $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+            ];
+        }
         
         return view('tasks.index', [
             'tasks'=>$tasks,
         ]);
-      }
+      
       
        return view('welcome');
     }
