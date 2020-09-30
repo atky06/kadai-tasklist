@@ -15,11 +15,19 @@ class TasksController extends Controller
      */
     public function index()
     {
+        $data = [];
+        if (\Auth::check()) { // 認証済みの場合
+            // 認証済みユーザを取得
+            $user = \Auth::user();
+        
         $tasks = Task::all();
         
         return view('tasks.index', [
             'tasks'=>$tasks,
         ]);
+      }
+      
+       return view('welcome');
     }
 
     /**
@@ -48,13 +56,12 @@ class TasksController extends Controller
             'content' => 'required|max:255',
             'status' => 'required|max:10',
         ]);
-
         
-        // メッセージを作成
-        $task = new Task;
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
+        $request->user()->tasks()->create([
+            'content' => $request->content,
+            'status' => $request->status,
+            'user_id' => $request->user_id,
+        ]);
 
         // トップページへリダイレクトさせる
         return redirect('/');
@@ -129,8 +136,9 @@ class TasksController extends Controller
     {
         // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
-        // メッセージを削除
-        $task->delete();
+        if (\Auth::id() === $task->user_id) {
+            $task->delete();
+        }
 
         // トップページへリダイレクトさせる
         return redirect('/');
