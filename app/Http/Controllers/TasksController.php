@@ -15,6 +15,13 @@ class TasksController extends Controller
      */
     public function index()
     {
+        $tasks = Task::orderBy('id', 'desc')->paginate(10);
+
+        // ユーザ一覧ビューでそれを表示
+        return view('tasks.index', [
+            'tasks' => $tasks,
+        ]);
+        
         $data = [];
         if (\Auth::check()) { // 認証済みの場合
             // 認証済みユーザを取得
