@@ -15,13 +15,11 @@ class TasksController extends Controller
      */
     public function index()
     {
-        
-        
         $data = [];
         if (\Auth::check()) { // 認証済みの場合
             // 認証済みユーザを取得
             $user = \Auth::user();
-        $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
 
             $data = [
                 'user' => $user,
@@ -29,7 +27,7 @@ class TasksController extends Controller
             ];
         }
       
-       return view('welcome', $data);
+        return view('welcome', $data);
     }
 
     /**
@@ -62,8 +60,13 @@ class TasksController extends Controller
         $request->user()->tasks()->create([
             'content' => $request->content,
             'status' => $request->status,
-            'user_id' => $request->user_id,
         ]);
+
+        // $task = new Task;
+        // $task->user_id = \Auth::id();
+        // $task->status = $request->status;
+        // $task->content = $request->content;
+        // $task->save();        
 
         // トップページへリダイレクトさせる
         return redirect('/');
@@ -78,14 +81,16 @@ class TasksController extends Controller
     public function show($id)
     {
         // idの値で投稿を検索して取得
-        $task = \App\Task::findOrFail($id);
+        $task = Task::findOrFail($id);
         
-        if (\Auth::id() === $task->user_id) {
-            // メッセージ詳細ビューでそれを表示
-            return view('tasks.show', [
-                'task' => $task,
-            ]);
+        if (\Auth::id() !== $task->user_id) {
+            return redirect('/');
         }
+        
+        // メッセージ詳細ビューでそれを表示
+        return view('tasks.show', [
+            'task' => $task,
+        ]);
     }
 
     /**
@@ -97,15 +102,16 @@ class TasksController extends Controller
     public function edit($id)
     {
        // idの値で投稿を検索して取得
-        $task = \App\Task::findOrFail($id);
-        
-        if (\Auth::id() === $task->user_id) {
+        $task = Task::findOrFail($id);
+        if (\Auth::id() !== $task->user_id) {
+            return redirect('/');
+        }        
 
-            // メッセージ編集ビューでそれを表示
-            return view('tasks.edit', [
-                'task' => $task,
-            ]);
-        }
+        // メッセージ編集ビューでそれを表示
+        return view('tasks.edit', [
+            'task' => $task,
+        ]);
+        
     }
 
     /**
@@ -123,16 +129,18 @@ class TasksController extends Controller
         ]);
         
         // idの値で投稿を検索して取得
-        $task = \App\Task::findOrFail($id);
-        
-        if (\Auth::id() === $task->user_id) {
-            // メッセージを更新
-            $task->status = $request->status;
-            $task->content = $request->content;
-            $task->save();
-        }
-            // トップページへリダイレクトさせる
+        $task = Task::findOrFail($id);
+        if (\Auth::id() !== $task->user_id) {
             return redirect('/');
+        }           
+        
+        // メッセージを更新
+        $task->status = $request->status;
+        $task->content = $request->content;
+        $task->save();
+    
+        // トップページへリダイレクトさせる
+        return redirect('/');
     }
 
     /**
@@ -144,11 +152,12 @@ class TasksController extends Controller
     public function destroy($id)
     {
         // idの値で投稿を検索して取得
-        $task = \App\Task::findOrFail($id);
+        $task = Task::findOrFail($id);
+        if (\Auth::id() !== $task->user_id) {
+            return redirect('/');
+        }          
 
-        if (\Auth::id() === $task->user_id) {
-            $task->delete();
-        }
+        $task->delete();
 
         // トップページへリダイレクトさせる
         return redirect('/');
